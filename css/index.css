@@ -1,0 +1,443 @@
+/* ================= GLOBAL ================= */
+* {
+    box-sizing: border-box;
+    scroll-behavior: smooth;
+}
+body {
+    margin: 0;
+    font-family: 'Poppins', 'Segoe UI', sans-serif;
+    background: #f0f2f5;
+    color: #111;
+}
+
+
+
+.logo img {
+    width: 55px;
+}
+
+
+.title {
+    flex: 1;
+    text-align: center;
+    font-size: 32px;
+    font-weight: 900;
+    background: linear-gradient(
+        90deg,
+        #ffffff,
+        #e6ee9c,
+        #ffffff
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+
+
+
+
+/* ================= BUTTONS ================= */
+.nav-buttons {
+    display: flex;
+    gap: 12px;
+}
+
+.btn-outline {
+    padding: 10px 26px;
+    border-radius: 30px;
+    background: rgba(255,255,255,0.15);
+    border: 1.5px solid rgba(255,255,255,0.6);
+    color: #ffffff;
+    font-weight: 600;
+    cursor: pointer;
+    backdrop-filter: blur(6px);
+    transition: all 0.3s ease;
+}
+
+
+.btn-outline:hover {
+    background: rgba(255,255,255,0.95);
+    color: #1b5e20;
+    transform: translateY(-2px);
+}
+
+
+.btn-outline:active {
+    background: #1b5e20;
+    color: #ffffff;
+    transform: scale(0.96);
+}
+
+
+
+
+
+/* ================= HERO ================= */
+/* ================= HERO ================= */
+.hero {
+    height: 100vh;
+    width: 100%;
+    background-image: url("../assets/ku-campus.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    overflow: hidden;
+}
+
+/* TOP RIGHT BUTTONS */
+.hero-top-buttons {
+    position: absolute;
+    top: 25px;
+    right: 30px;
+    display: flex;
+    gap: 14px;
+    z-index: 10;
+}
+
+/* BOTTOM CENTER */
+.hero-bottom {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+}
+
+/* GET STARTED BUTTON */
+.btn-get-started {
+    padding: 16px 44px;
+    font-size: 18px;
+    font-weight: 700;
+    border-radius: 40px;
+    border: none;
+    cursor: pointer;
+    background: linear-gradient(135deg, #FFD700, #FFA000);
+    color: #1b1b1b;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.35);
+    transition:  all 0.3s ease;
+}
+
+.btn-get-started:hover {
+    transform: translateY(-4px) scale(1.05);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.45);
+}
+
+
+/* ================= FEATURES ================= */
+.features {
+    padding: 90px 40px;
+    background: linear-gradient(135deg, #FF6B6B, #FFD93D); /* pink → yellow */
+    color: #fff;
+    text-align: center;
+}
+
+
+.features h2 {
+    font-size: 38px;
+    font-weight: 800;
+    margin-bottom: 50px;
+}
+
+.feature-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit,minmax(250px,1fr));
+    gap: 30px;
+}
+
+.feature-card {
+    background: rgba(255, 255, 255, 0.15); /* slightly transparent card */
+    padding: 35px;
+    border-radius: 18px;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+    transition: all 0.4s ease;
+    cursor: pointer;
+    color: #fff;  /* force text to stay white */
+}
+
+.feature-card:hover {
+    transform: translateY(-12px) scale(1.07);
+    box-shadow: 0 20px 45px rgba(0,0,0,0.25);
+    background: rgba(0,0,0,0.3); /* dark semi-transparent hover */
+    color: #fff;  /* keep text white */
+}
+
+.feature-card h3,
+.feature-card p {
+    color: inherit;  /* inherit white from parent */
+}
+
+
+.feature-card p {
+    color: #444;
+}
+
+/* ================= CONTACT ================= */
+/* ================= CONTACT ================= */
+/* ================= CONTACT ================= */
+.contact {
+    padding: 100px 40px;
+    text-align: center;
+    color: white;
+
+    /* Attractive gradient */
+    background: linear-gradient(
+        135deg,
+        #5f2c82,   /* purple */
+        #49a09d    /* blue */
+    );
+}
+
+/* Heading */
+.contact h2 {
+    font-size: 42px;
+    margin-bottom: 12px;
+    font-weight: 800;
+}
+
+/* Sub text */
+.contact p.subtitle {
+    font-size: 18px;
+    color: #f1f1f1;
+    margin-bottom: 40px;
+}
+
+/* Form box */
+.contact form {
+    max-width: 480px;
+    margin: auto;
+    background: rgba(255,255,255,0.15);
+    padding: 35px;
+    border-radius: 18px;
+    backdrop-filter: blur(10px);
+}
+
+/* Inputs */
+.contact input,
+.contact textarea {
+    width: 100%;
+    padding: 14px;
+    margin-bottom: 16px;
+    border-radius: 10px;
+    border: none;
+    outline: none;
+    font-size: 15px;
+}
+
+/* Button */
+.contact button {
+    padding: 14px;
+    width: 100%;
+    border-radius: 30px;
+    background: linear-gradient(135deg,#ffcc00,#ff9800);
+    border: none;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.contact button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+}
+
+
+/* ================= MODAL ================= */
+/* ================= MODAL BACKDROP ================= */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 999;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(6px);
+}
+
+/* ================= MODAL BOX ================= */
+.modal-content {
+    background: linear-gradient(135deg, #ff7a18, #ff3cac, #784ba0);
+    background-size: 200% 200%;
+    animation: gradientMove 6s ease infinite;
+    color: #fff;
+    max-width: 420px;
+    margin: 8% auto;
+    padding: 30px;
+    border-radius: 18px;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.4);
+    position: relative;
+}
+
+/* Gradient animation */
+@keyframes gradientMove {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* ================= CLOSE BUTTON ================= */
+.modal-content .close {
+    position: absolute;
+    top: 14px;
+    right: 18px;
+    font-size: 24px;
+    cursor: pointer;
+    color: #fff;
+}
+
+/* ================= HEADINGS ================= */
+.modal-content h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 26px;
+    font-weight: 700;
+}
+
+/* ================= INPUTS ================= */
+.modal-content input {
+    width: 100%;
+    padding: 12px 14px;
+    margin-bottom: 14px;
+    border-radius: 10px;
+    border: none;
+    outline: none;
+    font-size: 15px;
+    background: rgba(255,255,255,0.9);
+    color: #333;
+}
+
+/* ================= REMEMBER ME ================= */
+.remember {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    margin-bottom: 16px;
+}
+
+/* ================= BUTTON ================= */
+.modal-content button {
+    width: 100%;
+    padding: 12px;
+    border-radius: 25px;
+    border: none;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    background: linear-gradient(90deg, #ff9800, #ff5722);
+    color: #fff;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.modal-content button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+}
+
+/* ================= SWITCH LOGIN / REGISTER TEXT ================= */
+.switch-text,
+.forgot {
+    margin-top: 15px;
+    text-align: center;
+    font-size: 14px;
+}
+
+.form-toggle {
+    color: #ffe082;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.form-toggle:hover {
+    text-decoration: underline;
+}
+
+/* ================= MESSAGES ================= */
+#regMsg,
+#loginMsg {
+    margin-top: 10px;
+    text-align: center;
+    font-size: 14px;
+}
+
+.close {
+    position: absolute;
+    right: 18px;
+    top: 12px;
+    font-size: 26px;
+    cursor: pointer;
+}
+
+.form-toggle {
+    color: #ff5722;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+
+.contact-info {
+    margin-top: 30px;
+    font-size: 16px;
+    color: #f1f1f1;
+}
+
+.contact-info p {
+    margin: 6px 0;
+}
+
+
+/* Floating shapes */
+.floating-shape {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.25;
+    animation: float 12s infinite ease-in-out;
+}
+
+.shape1 {
+    width: 120px;
+    height: 120px;
+    background: #ffcc00;
+    top: 20%;
+    left: 10%;
+}
+
+.shape2 {
+    width: 180px;
+    height: 180px;
+    background: #00e5ff;
+    bottom: 15%;
+    right: 12%;
+    animation-delay: 3s;
+}
+
+.shape3 {
+    width: 90px;
+    height: 90px;
+    background: #ff4081;
+    top: 50%;
+    right: 25%;
+    animation-delay: 6s;
+}
+
+@keyframes float {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(-30px); }
+    100% { transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+    .contact h2 {
+        font-size: 32px;
+    }
+
+    .contact form {
+        padding: 25px;
+    }
+
+    .floating-shape {
+        display: none; /* cleaner on mobile */
+    }
+}
+
+

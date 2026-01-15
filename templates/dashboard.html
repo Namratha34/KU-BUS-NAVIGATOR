@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>KU Bus Navigator – Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/dashboard.css">
+
+    
+</head>
+<body>
+<div id="welcomeOverlay">
+</div>
+
+<header class="dashboard-header">
+<div class="mini-cracker"></div>
+    <span id="welcomeUser">Welcome</span>
+
+</header>
+    <div class="dashboard-container">
+
+
+
+
+        <div class="logo">
+            <img src="/assets/ku-logo.png" alt="KU Logo">
+        </div>
+        <div class="title">Ku Bus Navigator</div>
+        <button class="btn-outline" onclick="logout()">Logout</button>
+    </div>
+
+
+<div class="container">
+   <h2><span class="moving-bus">🚍</span> Track Your University Bus</h2>
+
+
+    <div class="search-box">
+        <input type="text" id="busSearch" placeholder="Search Bus (1–30)">
+        <button class="btn-outline" onclick="searchBus()">Search</button>
+    </div>
+
+    <div class="bus-grid" id="busGrid"></div>
+
+    <div class="bus-details" id="busDetails">
+        <h3>🚌 Bus Details</h3>
+        <p><strong>Bus Number:</strong> <span id="dBus">—</span></p>
+        <p><strong>Driver:</strong> <span id="dDriver">—</span></p>
+        <p><strong>Phone:</strong> <span id="dPhone">—</span></p>
+        <p><strong>Route:</strong> <span id="dRoute">—</span></p>
+        <p><strong>Start Time:</strong> <span id="dTime">—</span></p>
+        <p><strong>Destination:</strong> <span id="dDest">—</span></p>
+        <a href="live_map.html" class="live-location-link" target="_blank">View Live Location</a>
+    </div>
+</div>
+    <script src="/js/dashboard.js">
+        </script>
+
+</body>
+</html>

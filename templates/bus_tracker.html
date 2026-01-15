@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Live Bus Tracker | KU Bus Navigator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Leaflet CSS -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-sA+zv5G8bG3m6jvB8g7+6uXo3l4XEv7xL4XbYMQ9gKk="
+      crossorigin=""
+    />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+
+    <style>
+      #map {
+        height: 90vh;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar dashboard-nav">
+    <div class="logo">
+        <a href="dashboard.html">
+            <img src="../assets/ku-logo-photo.png" alt="KU Logo">
+        </a>
+    </div>
+    <h1 class="title">KU Bus Navigator</h1>
+    <div class="nav-buttons">
+        <a class="btn-fill" href="dashboard.html">Back to Dashboard</a>
+    </div>
+</nav>
+
+<!-- MAP -->
+<div id="map"></div>
+
+<!-- Leaflet JS -->
+<script
+  src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+  integrity="sha256-o9N1jP0V4bJb0GtRzLFp1A/mnv1bK4C1p3F6QIsXmPQ="
+  crossorigin=""
+></script>
+
+<!-- Custom JS -->
+<script src="../js/main.js"></script>
+
+<script>
+const API = "http://127.0.0.1:5000"; // backend URL
+
+// Initialize Map
+const map = L.map('map').setView([15.1394, 76.9214], 14); // Center at KU campus
+
+// Tile Layer
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors'
+}).addTo(map);
+
+// Custom bus icon
+const busIcon = L.icon({
+    iconUrl: '../assets/ku-logo-photo.png', // You can replace with bus icon
+    iconSize: [40, 40],
+    iconAnchor: [20, 20]
+});
+
+// Store markers
+let busMarkers = {};
+
+// Fetch bus locations and update markers
+async function updateBusMarkers() {
+    try {
+        const res = await fetch(`${API}/buses`);
+        const data = await res.json();
+        const buses = data.buses;
+
+        buses.forEach(bus => {
+            const { bus_number, latitude, longitude, current_location } = bus;
+
+            if (!latitude || !longitude) return;
+
+            if (busMarkers[bus_number]) {
+                // Update existing marker
+                busMarkers[bus_number].setLatLng([latitude, longitude]);
+            } else {
+                // Create new marker
+                const marker = L.marker([latitude, longitude], { icon: busIcon })
+                    .addTo(map)
+                    .bindPopup(`Bus ${bus_number}<br>${current_location}`);
+                busMarkers[bus_number] = marker;
+            }
+        });
+    } catch (err) {
+        console.error("Failed to fetch bus data", err);
+    }
+}
+
+// Initial load
+updateBusMarkers();
+
+// Refresh every 10 seconds
+setInterval(updateBusMarkers, 10000);
+</script>
+
+</body>
+</html>

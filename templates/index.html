@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>KUBusNavigator</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- CSS -->
+   <link rel="stylesheet" href="css/index.css">
+
+
+        <!-- EmailJS -->
+        <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+    </head>
+
+    <body>
+
+        
+
+        <!-- ================= HERO SECTION ================= -->
+  <!-- ================= HERO SECTION ================= -->
+<section class="hero">
+
+    <!-- TOP RIGHT BUTTONS -->
+    <div class="hero-top-buttons">
+    <button id="registerBtn" class="btn-outline">Register</button>
+    <button id="loginBtn" class="btn-outline">Login</button>
+</div>
+
+
+    <!-- BOTTOM CENTER BUTTON -->
+    <div class="hero-bottom">
+        <button class="btn-get-started" id="getStartedBtn" onclick="openModal('registerModal')">
+            Get Started
+        </button>
+    </div>
+
+</section>
+
+
+
+
+        <!-- ================= REGISTER MODAL ================= -->
+        <div class="modal" id="registerModal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal('registerModal')">&times;</span>
+                <h2>Create Account</h2>
+
+                <form id="registerForm">
+                    <input type="text" id="regUsername" placeholder="Username" required>
+                    <input type="email" id="regEmail" placeholder="Email" required>
+                    <input type="password" id="regPassword" placeholder="Password" required>
+
+                    <label class="remember">
+                        <input type="checkbox" id="regRemember"> Remember Me
+                    </label>
+
+                    <button type="submit">Register</button>
+                    <p id="regMsg"></p>
+                </form>
+
+                <p class="switch-text">
+                    Already have an account?
+                   <span class="form-toggle" id="switchToLogin">Login</span>
+                </p>
+            </div>
+        </div>
+
+        <!-- ================= LOGIN MODAL ================= -->
+        <div class="modal" id="loginModal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal('loginModal')">&times;</span>
+                <h2>Welcome Back</h2>
+
+                <form id="loginForm">
+                    <input type="email" id="loginEmail" placeholder="Email" required>
+                    <input type="password" id="loginPassword" placeholder="Password" required>
+
+                    <label class="remember">
+                        <input type="checkbox" id="loginRemember"> Remember Me
+                    </label>
+
+                    <button type="submit">Login</button>
+                    <p id="loginMsg"></p>
+
+                    <p class="forgot">
+                        <span class="form-toggle" onclick="forgotPassword()">Forgot Password?</span>
+                    </p>
+                </form>
+            </div>
+        </div>
+
+        <!-- ================= FEATURES ================= -->
+        <section class="features">
+            <h2 class="section-title">Why Choose KU Bus Navigator?</h2>
+
+            <div class="feature-container">
+                <div class="feature-card">
+                    <h3>🗺 Live Google Maps</h3>
+                    <p>Track buses visually with real-time updates.</p>
+                </div>
+
+                <div class="feature-card">
+                    <h3>🎓 KU Exclusive</h3>
+                    <p>Designed only for Kishkindha University students.</p>
+                </div>
+
+                <div class="feature-card">
+                    <h3>⏱ Real-Time Tracking</h3>
+                    <p>Accurate bus location anytime, anywhere.</p>
+                </div>
+
+                <div class="feature-card">
+                    <h3>🚍 Smooth Commute</h3>
+                    <p>No more waiting blindly for buses.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= CONTACT ================= -->
+       <div class="floating-shape shape1"></div>
+<div class="floating-shape shape2"></div>
+<div class="floating-shape shape3"></div>
+ <section class="contact">
+    <h2>Get in Touch</h2>
+    <p class="subtitle">
+        Have questions or suggestions? We'd love to hear from you 💬
+    </p>
+
+    <form id="contact-form">
+        <input type="text" name="name" placeholder="Your Name" required>
+        <input type="email" name="email" placeholder="Your Email" required>
+        <textarea name="message" placeholder="Your Message" required></textarea>
+        <button type="submit">Send Message</button>
+    </form>
+
+    <!-- ADD HERE -->
+    <div class="contact-info">
+        <p>📧 support: namrathaachar7204@gmail.com</p>
+        <p>📞 +91 7204370834 </p>
+    </div>
+</section>
+
+<script>
+(function(){
+    emailjs.init("fgTM_4C0yYxGKiLpE"); // replace later
+})();
+</script>
+
+        <!-- ✅ FIXED: ONLY ONE SCRIPT TAG -->
+        <script src="/js/index.js"></script>
+
+    </body>
+</html>

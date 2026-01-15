@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Driver Live Location</title>
+</head>
+<body>
+  <h2>Driver Location Sharing</h2>
+  <p id="status">Starting GPS...</p>
+
+  <script>
+    const BUS_ID = 6; // change if needed
+
+    if ("geolocation" in navigator) {
+      navigator.geolocation.watchPosition(
+        position => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+
+          document.getElementById("status").innerText =
+            `Lat: ${lat}, Lng: ${lng}`;
+
+          fetch("/api/update-location", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              bus_id: BUS_ID,
+              lat: lat,
+              lng: lng
+            })
+          });
+        },
+        error => {
+          document.getElementById("status").innerText =
+            "GPS permission denied";
+        },
+        { enableHighAccuracy: true }
+      );
+    } else {
+      document.getElementById("status").innerText =
+        "Geolocation not supported";
+    }
+  </script>
+</body>
+</html>

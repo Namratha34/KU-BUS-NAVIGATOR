@@ -1,0 +1,238 @@
+/* ================= DASHBOARD GLOBAL ================= */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: 'Poppins', 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #1a002b, #2b1055, #3c1361);
+    min-height: 100vh;
+    color: #fff;
+}
+
+/* ================= HEADER ================= */
+.dashboard-header {
+    background: linear-gradient(90deg, #ff512f, #dd2476);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.3);
+}
+
+.dashboard-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 30px;
+}
+
+/* Logo */
+.logo img {
+    width: 55px;
+}
+
+/* Title */
+.title {
+    font-size: 28px;
+    font-weight: 800;
+}
+
+/* ================= BUTTONS ================= */
+.btn-outline {
+    padding: 10px 26px;
+    border-radius: 30px;
+    background: rgba(255,255,255,0.15);
+    border: 1.5px solid rgba(255,255,255,0.6);
+    color: #ffffff;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.btn-outline:hover {
+    background: #fff;
+    color: #dd2476;
+}
+
+/* ================= MAIN CONTAINER ================= */
+.container {
+    padding: 40px;
+}
+
+/* ================= SEARCH ================= */
+.search-box {
+    margin: 20px 0;
+}
+
+.search-box input {
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: none;
+    outline: none;
+}
+
+.search-box button {
+    padding: 10px 18px;
+    border-radius: 20px;
+    border: none;
+    background: linear-gradient(90deg, #ff9800, #ff5722);
+    color: #fff;
+    cursor: pointer;
+}
+
+/* ================= BUS BUTTONS ================= */
+.bus-buttons button {
+    background: linear-gradient(135deg, #00c6ff, #0072ff);
+    color: #fff;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 25px;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+
+.bus-buttons button:hover {
+    background: linear-gradient(135deg, #ff512f, #dd2476);
+}
+
+/* ================= BUS DETAILS ================= */
+.bus-details {
+    background: linear-gradient(135deg, #232526, #414345);
+    border-radius: 18px;
+    padding: 25px;
+    margin-top: 40px;
+    box-shadow: 0 20px 45px rgba(0,0,0,0.35);
+}
+
+.bus-details h3 {
+    color: #ffcc70;
+}
+
+/* ================= MOVING BUS ================= */
+.moving-bus {
+    display: inline-block;
+    animation: moveBus 4s linear infinite;
+}
+
+@keyframes moveBus {
+    0% { transform: translateX(-20px); }
+    50% { transform: translateX(20px); }
+    100% { transform: translateX(-20px); }
+}
+
+/* ================= BUS GRID ================= */
+.bus-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 16px;
+    margin-top: 25px;
+}
+
+/* ================= BUS BUTTONS ================= */
+.bus-grid button {
+    padding: 18px 0;
+    font-size: 18px;
+    font-weight: 700;
+    border-radius: 18px;
+    border: none;
+    cursor: pointer;
+
+    background: linear-gradient(135deg, #ff512f, #dd2476);
+    color: #fff;
+
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    transition: all 0.3s ease;
+}
+
+/* Hover animation */
+.bus-grid button:hover {
+    transform: translateY(-6px) scale(1.08);
+    background: linear-gradient(135deg, #00c6ff, #0072ff);
+    box-shadow: 0 18px 40px rgba(0,0,0,0.45);
+}
+
+/* Click animation */
+.bus-grid button:active {
+    transform: scale(0.95);
+}
+
+.container h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.search-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 30px;
+}
+
+.search-box input {
+    width: 240px;
+    text-align: center;
+}
+
+
+/* ================= MINI WELCOME CRACKER ================= */
+#welcomeCracker {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+
+    margin: 20px auto;
+    width: fit-content;
+
+    padding: 10px 18px;
+    border-radius: 30px;
+
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: blur(6px);
+
+    animation: fadeOutWelcome 1s ease forwards;
+    animation-delay: 2.2s;
+}
+
+/* Small cracker */
+.mini-cracker {
+    width: 18px;
+    height: 28px;
+    background: linear-gradient(#ff5722, #ff9800);
+    border-radius: 0 0 6px 6px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Burst spark */
+.mini-cracker::before {
+    content: "";
+    position: absolute;
+    inset: -10px;
+    background:
+        radial-gradient(circle, #fff 20%, transparent 22%),
+        radial-gradient(circle, #ffd700 20%, transparent 22%),
+        radial-gradient(circle, #00e5ff 20%, transparent 22%);
+    animation: miniBurst 0.9s ease-out;
+}
+
+/* Welcome text */
+#welcomeUser {
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+}
+
+/* Burst animation */
+@keyframes miniBurst {
+    0% { transform: scale(0.2); opacity: 1; }
+    100% { transform: scale(1.2); opacity: 0; }
+}
+
+/* Fade away */
+@keyframes fadeOutWelcome {
+    to {
+        opacity: 0;
+        transform: translateY(-10px);
+        visibility: hidden;
+    }
+}
