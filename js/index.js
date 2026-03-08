@@ -1,30 +1,22 @@
+// ================= ELEMENTS =================
+const registerBtn = document.getElementById("registerBtn");
+const loginBtn = document.getElementById("loginBtn");
+const registerModal = document.getElementById("registerModal");
+const loginModal = document.getElementById("loginModal");
+const getStartedBtn = document.getElementById("getStartedBtn");
+const switchToLogin = document.getElementById("switchToLogin"); // Ensure this ID exists in HTML
 
-
-    // ================= ELEMENTS =================
-    const registerBtn = document.getElementById("registerBtn");
-    const loginBtn = document.getElementById("loginBtn");
-    const registerModal = document.getElementById("registerModal");
-    const loginModal = document.getElementById("loginModal");
-    const getStartedBtn = document.getElementById("getStartedBtn");
-
-
-
-
-
-    // ================= OPEN / CLOSE MODAL =================
-   registerBtn?.addEventListener("click", () => openModal("registerModal"));
+// ================= OPEN / CLOSE MODAL =================
+registerBtn?.addEventListener("click", () => openModal("registerModal"));
 loginBtn?.addEventListener("click", () => openModal("loginModal"));
-getStartedBtn?.addEventListener("click", () => {
-    openModal("registerModal");
-});
+getStartedBtn?.addEventListener("click", () => openModal("registerModal"));
+
 switchToLogin?.addEventListener("click", () => {
     closeAllModals();
     openModal("loginModal");
 });
 
-
-
-    function openModal(modalId) {
+function openModal(modalId) {
     closeAllModals();
     const modal = document.getElementById(modalId);
     if (modal) modal.style.display = "block";
@@ -35,31 +27,27 @@ function closeModal(modalId) {
     if (modal) modal.style.display = "none";
 }
 
+function closeAllModals() {
+    document.querySelectorAll(".modal").forEach(m => m.style.display = "none");
+}
 
-    function closeAllModals() {
-        document.querySelectorAll(".modal").forEach(m => m.style.display = "none");
-    }
+window.addEventListener("click", (e) => {
+    if (e.target.classList.contains("modal")) closeAllModals();
+});
 
-    // Close on outside click
-    window.addEventListener("click", (e) => {
-        if (e.target.classList.contains("modal")) {
-            closeAllModals();
-        }
-    });
+window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeAllModals();
+});
 
-    // Close on ESC
-    window.addEventListener("keydown", (e) => {
-        if (e.key === "Escape") closeAllModals();
-    });
+// ================= REMEMBER ME (INITIAL LOAD) =================
+const savedEmail = localStorage.getItem("rememberMe");
+const loginEmailInput = document.getElementById("loginEmail");
+if (savedEmail && loginEmailInput) {
+    loginEmailInput.value = savedEmail;
+}
 
-    // ================= REMEMBER ME =================
-    const savedEmail = localStorage.getItem("rememberMe");
-    if (savedEmail && document.getElementById("loginEmail")) {
-        document.getElementById("loginEmail").value = savedEmail;
-    }
-
-    // ================= REGISTER =================
-   const registerForm = document.getElementById("registerForm");
+// ================= REGISTER =================
+const registerForm = document.getElementById("registerForm");
 
 registerForm?.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -67,15 +55,15 @@ registerForm?.addEventListener("submit", async (e) => {
     const username = document.getElementById("regUsername").value.trim();
     const email = document.getElementById("regEmail").value.trim();
     const password = document.getElementById("regPassword").value.trim();
-    const remember = document.getElementById("regRemember").checked;
+    const remember = document.getElementById("regRemember")?.checked;
     const regMsg = document.getElementById("regMsg");
 
     regMsg.innerText = "Processing...";
     regMsg.style.color = "#555";
 
     try {
-        const res = await fetch("/api/register",{
-method: "POST",
+        const res = await fetch("/api/register", {
+            method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ username, email, password })
         });
@@ -85,21 +73,15 @@ method: "POST",
         if (data.success) {
             regMsg.style.color = "green";
             regMsg.innerText = "Registration Successful ✔";
-
-            // Optional: remember me
             if (remember) localStorage.setItem("rememberMe", email);
-
-            // Switch to login modal after short delay
             setTimeout(() => {
                 closeModal('registerModal');
                 openModal('loginModal');
             }, 1200);
-
         } else {
             regMsg.style.color = "red";
             regMsg.innerText = data.message || "Registration failed";
         }
-
     } catch (err) {
         console.error("Register error:", err);
         regMsg.style.color = "red";
@@ -107,52 +89,50 @@ method: "POST",
     }
 });
 
-    // ================= LOGIN =================
-    const loginForm = document.getElementById("loginForm");
-    loginForm?.addEventListener("submit", async (e) => {
-        e.preventDefault();
+// ================= LOGIN (FIXED) =================
+const loginForm = document.getElementById("loginForm");
+loginForm?.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-        const email = loginEmail.value.trim();
-        const password = loginPassword.value.trim();
-        const remember = loginRemember.checked;
-        const loginMsg = document.getElementById("loginMsg");
+    // FIXED: Correctly getting elements before using them
+    const emailInput = document.getElementById("loginEmail");
+    const passwordInput = document.getElementById("loginPassword");
+    const rememberInput = document.getElementById("loginRemember");
+    const loginMsg = document.getElementById("loginMsg");
 
-        loginMsg.innerText = "Checking...";
-        loginMsg.style.color = "#555";
+    const email = emailInput.value.trim();
+    const password = passwordInput.value.trim();
+    const remember = rememberInput ? rememberInput.checked : false;
 
-        try {
-            const res = await fetch("/api/login", {
-                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email, password })
-            });
+    loginMsg.innerText = "Checking...";
+    loginMsg.style.color = "#555";
 
-            let data;
-try {
-    data = await res.json();
-} catch {
-    throw new Error("Invalid JSON from server");
-}
+    try {
+        const res = await fetch("/api/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password })
+        });
 
+        const data = await res.json();
 
-            if (data.success) {
-                if (remember) localStorage.setItem("rememberMe", email);
-                loginMsg.style.color = "green";
-                loginMsg.innerText = "Login successful ✔";
-                setTimeout(() => {
-                    window.location.href = "/dashboard"
-                },800);
-            }else {
-                loginMsg.style.color = "red";
-                loginMsg.innerText = data.message;
-            }
-        } catch (err) {
-            console.error(err);
+        if (data.success) {
+            if (remember) localStorage.setItem("rememberMe", email);
+            loginMsg.style.color = "green";
+            loginMsg.innerText = "Login successful ✔";
+            setTimeout(() => {
+                window.location.href = "/dashboard";
+            }, 800);
+        } else {
             loginMsg.style.color = "red";
-            loginMsg.innerText = "Server error!";
+            loginMsg.innerText = data.message || "Invalid credentials";
         }
-    });
-
+    } catch (err) {
+        console.error("Login Error:", err);
+        loginMsg.style.color = "red";
+        loginMsg.innerText = "Server error!";
+    }
+});
 
 // ================= FORGOT PASSWORD =================
 function forgotPassword() {
@@ -164,22 +144,18 @@ function forgotPassword() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email })
     })
-        .then(res => res.json())
-        .then(data => alert(data.message))
-        .catch(() => alert("Server error"));
+    .then(res => res.json())
+    .then(data => alert(data.message))
+    .catch(() => alert("Server error"));
 }
 
-// ================= CONTACT FORM (EmailJS) =================
+// ================= CONTACT FORM =================
 const contactForm = document.getElementById("contact-form");
-
 contactForm?.addEventListener("submit", function(e) {
     e.preventDefault();
-
-    emailjs.sendForm(
-        "service_xwbwy2i",     // 👈 paste service ID
-        "template_bhfphlv",    // 👈 paste template ID
-        this
-    ).then(() => {
+    // Assuming emailjs is loaded in the HTML head
+    emailjs.sendForm("service_xwbwy2i", "template_bhfphlv", this)
+    .then(() => {
         alert("Message sent successfully ✅");
         contactForm.reset();
     }).catch((error) => {
@@ -187,6 +163,3 @@ contactForm?.addEventListener("submit", function(e) {
         alert("Failed to send message ❌");
     });
 });
-
-
-
