@@ -1,6 +1,6 @@
 from flask import Flask, render_template, jsonify, request, send_from_directory
 from flask_cors import CORS
-from db import get_db_connection
+from backend.db import get_db_connection
 import hashlib
 import os
 import mysql.connector
@@ -239,5 +239,6 @@ def driver():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    port = int(os.environ.get("PORT",5000))
+    app.run(host="0.0.0.0", port = port)
 
