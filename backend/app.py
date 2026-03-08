@@ -51,19 +51,13 @@ def api_bus_location():
     conn = None
     try:
         conn = get_db_connection()
-        # Add buffered=True here as well
+        # Use buffered=True here as well
         cursor = conn.cursor(dictionary=True, buffered=True)
-        cursor.execute("""
-            SELECT bus_id, bus_number, route,
-                   start_point, destination AS end_point,
-                   start_time, arrival_time,
-                   live_location
-            FROM bus_details
-        """)
+        cursor.execute("SELECT bus_id, bus_number, route, start_point, destination AS end_point, start_time, arrival_time, live_location FROM bus_details")
         buses = cursor.fetchall()
         cursor.close()
         
-        # ... (keep your existing loop for processing lat/lng) ...
+        # ... keep your existing loop to format the buses list ...
         
         return jsonify({"buses": buses})
     finally:
@@ -74,20 +68,19 @@ def get_bus(bus_id):
     conn = None
     try:
         conn = get_db_connection()
-        # Adding buffered=True prevents the "Unread result" error
+        # Adding buffered=True is the fix for "Unread result found"
         cursor = conn.cursor(dictionary=True, buffered=True)
         
         bus_name = f"Bus{bus_id}"
         cursor.execute("SELECT * FROM bus_details WHERE bus_number = %s", (bus_name,))
         bus = cursor.fetchone()
         
-        # We must close the cursor AFTER fetchone
         cursor.close()
         
         if not bus:
             return jsonify({"success": False, "message": "Bus not found"}), 404
 
-        # Clean up time objects for JSON
+        # Convert time objects to strings for JSON
         bus["start_time"] = str(bus["start_time"]) if bus.get("start_time") else "N/A"
         bus["arrival_time"] = str(bus["arrival_time"]) if bus.get("arrival_time") else "N/A"
         
@@ -98,23 +91,7 @@ def get_bus(bus_id):
         return jsonify({"success": False, "message": str(e)}), 500
     finally:
         if conn and conn.is_connected():
-            conn.close()# Registration and Login (Kept from your original)
-@app.route("/api/register", methods=["POST"])
-def register():
-    data = request.get_json()
-    username, email, password = data.get("username"), data.get("email"), data.get("password")
-    db = get_db_connection()
-    cursor = db.cursor()
-    try:
-        cursor.execute("INSERT INTO users (username, email, password) VALUES (%s,%s,%s)", (username, email, hash_password(password)))
-        db.commit()
-        return jsonify(success=True)
-    except Exception as e:
-        return jsonify(success=False, message=str(e)), 500
-    finally:
-        cursor.close()
-        db.close()
-
+            conn.close()
 @app.route("/api/login", methods=["POST"])
 def login():
     data = request.get_json(force=True)
