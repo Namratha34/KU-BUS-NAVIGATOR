@@ -48,62 +48,57 @@ def driver():
 
 @app.route("/api/bus-location")
 def api_bus_location():
-    conn = get_db_connection()
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute("""
-        SELECT bus_id, bus_number, route,
-               start_point, destination AS end_point,
-               start_time, arrival_time,
-               live_location
-        FROM bus_details
-    """)
-    buses = cursor.fetchall()
-    for bus in buses:
-        bus["start_time"] = str(bus["start_time"]) if bus["start_time"] else "N/A"
-        bus["arrival_time"] = str(bus["arrival_time"]) if bus["arrival_time"] else "N/A"
-        if bus["live_location"]:
-            try:
-                lat, lng = bus["live_location"].split(",")
-                bus["lat"] = float(lat)
-                bus["lng"] = float(lng)
-            except:
-                bus["lat"], bus["lng"] = None, None
-        else:
-            bus["lat"], bus["lng"] = None, None
-        if "live_location" in bus:
-            del bus["live_location"]
-    cursor.close()
-    conn.close()
-    return jsonify({"buses": buses})
-
-@app.route("/api/bus/<int:bus_id>")
-def get_bus(bus_id):
+    conn = None
     try:
         conn = get_db_connection()
-        cursor = conn.cursor(dictionary=True)
+        # Add buffered=True here as well
+        cursor = conn.cursor(dictionary=True, buffered=True)
+        cursor.execute("""
+            SELECT bus_id, bus_number, route,
+                   start_point, destination AS end_point,
+                   start_time, arrival_time,
+                   live_location
+            FROM bus_details
+        """)
+        buses = cursor.fetchall()
+        cursor.close()
         
-        # We search for "Bus1", "Bus2", etc.
-        # Added strip() to ensure no accidental spaces break the match
+        # ... (keep your existing loop for processing lat/lng) ...
+        
+        return jsonify({"buses": buses})
+    finally:
+        if conn and conn.is_connected():
+            conn.close()
+@app.route("/api/bus/<int:bus_id>")
+def get_bus(bus_id):
+    conn = None
+    try:
+        conn = get_db_connection()
+        # Adding buffered=True prevents the "Unread result" error
+        cursor = conn.cursor(dictionary=True, buffered=True)
+        
         bus_name = f"Bus{bus_id}"
-        
         cursor.execute("SELECT * FROM bus_details WHERE bus_number = %s", (bus_name,))
         bus = cursor.fetchone()
         
+        # We must close the cursor AFTER fetchone
         cursor.close()
-        conn.close()
-
+        
         if not bus:
             return jsonify({"success": False, "message": "Bus not found"}), 404
 
-        # Convert time objects to strings
+        # Clean up time objects for JSON
         bus["start_time"] = str(bus["start_time"]) if bus.get("start_time") else "N/A"
         bus["arrival_time"] = str(bus["arrival_time"]) if bus.get("arrival_time") else "N/A"
         
         return jsonify({"success": True, "data": bus})
+
     except Exception as e:
-        print(f"DEBUG ERROR: {str(e)}") # This will show up in Render Logs
+        print(f"DATABASE ERROR: {e}")
         return jsonify({"success": False, "message": str(e)}), 500
-# Registration and Login (Kept from your original)
+    finally:
+        if conn and conn.is_connected():
+            conn.close()# Registration and Login (Kept from your original)
 @app.route("/api/register", methods=["POST"])
 def register():
     data = request.get_json()
