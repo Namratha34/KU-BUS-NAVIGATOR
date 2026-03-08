@@ -78,43 +78,31 @@ def api_bus_location():
 
 @app.route("/api/bus/<int:bus_id>")
 def get_bus(bus_id):
-    conn = get_db_connection()
-    cursor = conn.cursor(dictionary=True)
-    # Correctly query for 'Bus1', 'Bus2', etc.
-    cursor.execute("SELECT * FROM bus_details WHERE bus_number = %s", (f"Bus{bus_id}",))
-    bus = cursor.fetchone()
-    cursor.close()
-    conn.close()
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        
+        # We search for "Bus1", "Bus2", etc.
+        # Added strip() to ensure no accidental spaces break the match
+        bus_name = f"Bus{bus_id}"
+        
+        cursor.execute("SELECT * FROM bus_details WHERE bus_number = %s", (bus_name,))
+        bus = cursor.fetchone()
+        
+        cursor.close()
+        conn.close()
 
-    if not bus:
-        return jsonify({"success": False, "message": "Bus not found"}), 404
+        if not bus:
+            return jsonify({"success": False, "message": "Bus not found"}), 404
 
-    # Convert time fields for JSON compatibility
-    bus["start_time"] = str(bus["start_time"]) if bus.get("start_time") else "N/A"
-    bus["arrival_time"] = str(bus["arrival_time"]) if bus.get("arrival_time") else "N/A"
-    
-    return jsonify({"success": True, "data": bus})
-
-@app.route("/api/update-location", methods=["POST"])
-def update_location():
-    data = request.get_json()
-    if not data or not data.get("bus_id"):
-        return jsonify(error="Missing data"), 400
-
-    bus_id = data.get("bus_id")
-    lat, lng = data.get("lat"), data.get("lng")
-
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute(
-        "UPDATE bus_details SET live_location=%s WHERE bus_number=%s",
-        (f"{lat},{lng}", f"Bus{bus_id}")
-    )
-    conn.commit()
-    cursor.close()
-    conn.close()
-    return jsonify(success=True)
-
+        # Convert time objects to strings
+        bus["start_time"] = str(bus["start_time"]) if bus.get("start_time") else "N/A"
+        bus["arrival_time"] = str(bus["arrival_time"]) if bus.get("arrival_time") else "N/A"
+        
+        return jsonify({"success": True, "data": bus})
+    except Exception as e:
+        print(f"DEBUG ERROR: {str(e)}") # This will show up in Render Logs
+        return jsonify({"success": False, "message": str(e)}), 500
 # Registration and Login (Kept from your original)
 @app.route("/api/register", methods=["POST"])
 def register():
