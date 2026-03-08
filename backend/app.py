@@ -172,6 +172,7 @@ def register():
         db.commit()
         return jsonify(success=True)
     except Exception as e:
+        print(f"REGISTRATION ERROR: {e}") # This will show the error in Render Logs
         return jsonify(success=False, message=str(e)), 500
     finally:
         cursor.close()

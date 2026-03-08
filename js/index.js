@@ -74,7 +74,7 @@ registerForm?.addEventListener("submit", async (e) => {
     regMsg.style.color = "#555";
 
     try {
-        const res = await fetch("http://127.0.0.1:5000/api/register", {
+        const res = await fetch("/api/register",{
 method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ username, email, password })
@@ -121,7 +121,7 @@ method: "POST",
         loginMsg.style.color = "#555";
 
         try {
-            const res = await fetch("http://127.0.0.1:5000/api/login", {
+            const res = await fetch("/api/login", {
                  method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email, password })
@@ -159,7 +159,7 @@ function forgotPassword() {
     const email = prompt("Enter your registered email:");
     if (!email) return;
 
-    fetch("http://127.0.0.1:5000/api/forgot-password", {
+    fetch("/api/forgot-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email })
