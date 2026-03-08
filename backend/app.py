@@ -55,41 +55,13 @@ def live_map():
 
 from flask import jsonify
 import random
-@app.route("/api/bus-location")
-def api_bus_location():
-    conn = get_db_connection()
-    cursor = conn.cursor(dictionary=True)
-
-    cursor.execute("""
+cursor.execute("""
         SELECT bus_id, bus_number, route,
-               start_point, end_point,
+               start_point, destination AS end_point,
                start_time, arrival_time,
                live_location
         FROM bus_details
     """)
-
-    buses = cursor.fetchall()
-
-    for bus in buses:
-        bus["start_time"] = str(bus["start_time"])
-        bus["arrival_time"] = str(bus["arrival_time"])
-
-        # ✅ SPLIT LOCATION
-        if bus["live_location"]:
-            lat, lng = bus["live_location"].split(",")
-            bus["lat"] = float(lat)
-            bus["lng"] = float(lng)
-        else:
-            bus["lat"] = None
-            bus["lng"] = None
-
-        del bus["live_location"]
-
-    cursor.close()
-    conn.close()
-
-    return jsonify({"buses": buses})
-
 
 
 @app.route("/api/bus/<int:bus_id>")
@@ -97,6 +69,7 @@ def get_bus(bus_id):
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
+    # We search for "Bus1", "Bus2", etc.
     cursor.execute(
         "SELECT * FROM bus_details WHERE bus_number = %s",
         (f"Bus{bus_id}",)
@@ -107,14 +80,21 @@ def get_bus(bus_id):
     conn.close()
 
     if not bus:
-        return jsonify({"error": "Bus not found"}), 404
+        return jsonify({"success": False, "message": "Bus not found"}), 404
 
-    # 🔧 FIX: Convert time fields
-    bus["start_time"] = str(bus["start_time"])
-    bus["arrival_time"] = str(bus["arrival_time"])
+    # 🔧 FIX 1: Convert time fields to strings so JSON can handle them
+    # If these columns are NULL in DB, we provide a fallback string
+    bus["start_time"] = str(bus["start_time"]) if bus.get("start_time") else "N/A"
+    
+    # We use 'destination' because that's what we named the column in TiDB
+    # But dashboard.js might be looking for 'arrival_time' if it was in the old SQLite
+    if "arrival_time" in bus and bus["arrival_time"]:
+        bus["arrival_time"] = str(bus["arrival_time"])
+    else:
+        bus["arrival_time"] = "N/A"
 
-    return jsonify(bus)
-
+    # 🔧 FIX 2: Wrap the result in a "data" object to match dashboard.js
+    return jsonify({"success": True, "data": bus})
 @app.route("/api/update-location", methods=["POST"])
 def update_location():
     data = request.get_json()

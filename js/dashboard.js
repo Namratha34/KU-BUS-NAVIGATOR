@@ -33,37 +33,43 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // === 5️⃣ Show Bus Details ===
-    function showBus(num) {
-        fetch(`/api/bus/${num}`)
-            .then(res => {
-                if (!res.ok) throw new Error("Bus not found");
-                return res.json();
-            })
-            .then(data => {
-                document.getElementById("dBus").innerText = data.bus_number;
-                document.getElementById("dDriver").innerText = data.driver_name;
-                document.getElementById("dPhone").innerText = data.driver_phone;
-                document.getElementById("dRoute").innerText = data.route;
-                document.getElementById("dTime").innerText = data.start_time;
-                document.getElementById("dDest").innerText = data.end_point;
+    // === 5️⃣ Show Bus Details (FIXED) ===
+function showBus(num) {
+    fetch(`/api/bus/${num}`)
+        .then(res => {
+            if (!res.ok) throw new Error("Bus not found");
+            return res.json();
+        })
+        .then(response => {
+            // Flask returns { success: true, data: { ... } }
+            // So we need to access response.data
+            const data = response.data;
 
-                const liveLink = document.querySelector(".live-location-link");
-                if (data.live_location) {
-                    const [lat, lng] = data.live_location.split(",");
-                    liveLink.dataset.lat = lat;
-                    liveLink.dataset.lng = lng;
-                } else {
-                    liveLink.dataset.lat = "";
-                    liveLink.dataset.lng = "";
-                }
+            // Updated to match your TiDB column names exactly
+            document.getElementById("dBus").innerText = data.bus_number || "N/A";
+            document.getElementById("dDriver").innerText = data.driver || "N/A"; // Fixed
+            document.getElementById("dPhone").innerText = data.phone || "N/A";   // Fixed
+            document.getElementById("dRoute").innerText = data.route || "N/A";
+            document.getElementById("dTime").innerText = data.start_time || "N/A";
+            document.getElementById("dDest").innerText = data.destination || "N/A"; // Fixed
 
-                busDetails.style.display = "block"; // Show the details section
-            })
-            .catch(err => {
-                alert("Bus data not found in database");
-                console.error(err);
-            });
-    }
+            const liveLink = document.querySelector(".live-location-link");
+            if (data.live_location) {
+                const [lat, lng] = data.live_location.split(",");
+                liveLink.dataset.lat = lat;
+                liveLink.dataset.lng = lng;
+            } else {
+                liveLink.dataset.lat = "";
+                liveLink.dataset.lng = "";
+            }
+
+            busDetails.style.display = "block"; 
+        })
+        .catch(err => {
+            alert("Bus data not found in database");
+            console.error(err);
+        });
+}
 
     // === 6️⃣ Handle Live Location Click ===
     document.addEventListener("click", function(e) {
