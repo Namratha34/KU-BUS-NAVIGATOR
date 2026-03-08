@@ -10,5 +10,6 @@ def get_db_connection():
         port=int(os.environ.get('DB_PORT', 4000)),
         ssl_ca='/etc/ssl/certs/ca-certificates.crt',
         ssl_verify_cert=True,
-        ssl_verify_identity= True
+        ssl_verify_identity= True,
+        use_pure=True
     )
