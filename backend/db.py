@@ -3,12 +3,11 @@ import os
 
 def get_db_connection():
     return mysql.connector.connect(
-        host=os.environ.get('HOST'),
-        user=os.environ.get('USER'),
-        password=os.environ.get('PASSWORD'),
-        database=os.environ.get('NAME'),
-        port=int(os.environ.get('PORT', 4000)),
-        # Use these two lines instead of a CA Path:
+        host=os.environ.get('DB_HOST'),
+        user=os.environ.get('DB_USER'),
+        password=os.environ.get('DB_PASSWORD'),
+        database=os.environ.get('DB_NAME'),
+        port=int(os.environ.get('DB_PORT', 4000)),
         ssl_verify_identity=True, 
         ssl_disabled=False
     )
