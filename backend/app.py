@@ -1,9 +1,11 @@
 from flask import Flask, render_template, jsonify, request, send_from_directory
 from flask_cors import CORS
-from backend.db import get_db_connection
+from backend.db import fetch_all, fetch_where, insert_data, update_data
+from dotenv import load_dotenv
 import hashlib
 import os
-import mysql.connector
+
+load_dotenv()
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.abspath(os.path.join(BASE_DIR, ".."))
@@ -11,98 +13,193 @@ ROOT_DIR = os.path.abspath(os.path.join(BASE_DIR, ".."))
 app = Flask(__name__, template_folder=os.path.join(ROOT_DIR, "templates"))
 CORS(app)
 
+
+# ================= PASSWORD =================
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
 
-# Static File Routes
+
+# ================= STATIC =================
 @app.route("/css/<path:filename>")
 def css(filename):
     return send_from_directory(os.path.join(ROOT_DIR, "css"), filename)
+
 
 @app.route("/js/<path:filename>")
 def js(filename):
     return send_from_directory(os.path.join(ROOT_DIR, "js"), filename)
 
+
 @app.route("/assets/<path:filename>")
 def assets(filename):
     return send_from_directory(os.path.join(ROOT_DIR, "assets"), filename)
 
-# Page Routes
+
+# ================= PAGES =================
 @app.route('/')
 def index():
     return render_template('index.html')
+
 
 @app.route('/dashboard')
 def dashboard():
     return render_template('dashboard.html')
 
-@app.route("/live_map")
+
+@app.route('/live_map')
 def live_map():
-    return render_template("live_map.html")
+    return render_template('live_map.html')
+
 
 @app.route('/driver')
 def driver():
     return render_template('driver.html')
 
-# === API ROUTES ===
 
+# ================= DEBUG =================
+@app.route("/test-db")
+def test_db():
+    return jsonify(fetch_all("users"))
+
+
+# ================= API =================
+
+# ✅ GET ALL BUSES
 @app.route("/api/bus-location")
-def api_bus_location():
-    conn = None
+def bus_location():
     try:
-        conn = get_db_connection()
-        # Use buffered=True here as well
-        cursor = conn.cursor(dictionary=True, buffered=True)
-        cursor.execute("SELECT bus_id, bus_number, route, start_point, destination AS end_point, start_time, arrival_time, live_location FROM bus_details")
-        buses = cursor.fetchall()
-        cursor.close()
-        
-        # ... keep your existing loop to format the buses list ...
-        
+        buses = fetch_all("bus_details")
         return jsonify({"buses": buses})
-    finally:
-        if conn and conn.is_connected():
-            conn.close()
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# ✅ GET SINGLE BUS
 @app.route("/api/bus/<int:bus_id>")
 def get_bus(bus_id):
-    conn = None
     try:
-        conn = get_db_connection()
-        # Adding buffered=True is the fix for "Unread result found"
-        cursor = conn.cursor(dictionary=True, buffered=True)
-        
         bus_name = f"Bus{bus_id}"
-        cursor.execute("SELECT * FROM bus_details WHERE bus_number = %s", (bus_name,))
-        bus = cursor.fetchone()
-        
-        cursor.close()
-        
-        if not bus:
-            return jsonify({"success": False, "message": "Bus not found"}), 404
+        rows = fetch_where("bus_details", "bus_number", bus_name)
 
-        # Convert time objects to strings for JSON
-        bus["start_time"] = str(bus["start_time"]) if bus.get("start_time") else "N/A"
-        bus["arrival_time"] = str(bus["arrival_time"]) if bus.get("arrival_time") else "N/A"
-        
-        return jsonify({"success": True, "data": bus})
+        if not rows:
+            return jsonify({"success": False}), 404
 
+        return jsonify({"success": True, "data": rows[0]})
     except Exception as e:
-        print(f"DATABASE ERROR: {e}")
         return jsonify({"success": False, "message": str(e)}), 500
-    finally:
-        if conn and conn.is_connected():
-            conn.close()
+
+
+# ✅ LOGIN
 @app.route("/api/login", methods=["POST"])
 def login():
-    data = request.get_json(force=True)
-    db = get_db_connection()
-    cursor = db.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM users WHERE email=%s AND password=%s", (data.get("email"), hash_password(data.get("password"))))
-    user = cursor.fetchone()
-    cursor.close()
-    db.close()
-    return jsonify(success=True) if user else jsonify(success=False), 401
+    try:
+        data = request.get_json()
 
+        email = data.get("email").lower().strip()
+        password = hash_password(data.get("password"))
+
+        rows = fetch_where("users", "email", email)
+
+        print("LOGIN DATA:", rows)
+
+        if not rows:
+            return jsonify({"success": False, "message": "User not found"}), 404
+
+        user = rows[0]
+
+        if user["password"] == password:
+            return jsonify({
+                "success": True,
+                "username": user["username"]
+            })
+        else:
+            return jsonify({"success": False, "message": "Invalid credentials"}), 401
+
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
+
+@app.route("/api/register", methods=["POST"])
+def register():
+    try:
+        data = request.get_json()
+
+        username = data.get("username")
+        email = data.get("email").lower().strip()
+        password = data.get("password")
+
+        if not username or not email or not password:
+            return jsonify({"success": False, "message": "Missing fields"}), 400
+
+        result = insert_data("users", {
+            "username": username,
+            "email": email,
+            "password": hash_password(password)
+        })
+
+        print("REGISTER RESULT:", result)
+
+        # 🔴 IMPORTANT CHECK
+        if not result:
+            return jsonify({
+                "success": False,
+                "message": "Insert failed (no result returned)"
+            }), 500
+
+        return jsonify({
+            "success": True,
+            "message": "User registered successfully"
+        })
+
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
+
+# ✅ UPDATE LOCATION
+@app.route("/api/update-location", methods=["POST"])
+def update_location():
+    try:
+        data = request.get_json()
+
+        print("LOCATION UPDATE RECEIVED:", data)
+
+        bus_name = f"Bus{data.get('bus_id')}".strip()
+
+        print("UPDATING BUS:", bus_name)
+
+        result = update_data(
+            "bus_details",
+            {
+                "latitude": float(data.get("lat")),
+                "longitude": float(data.get("lng"))
+            },
+            "bus_number",
+            bus_name
+        )
+
+        print("UPDATE RESULT:", result)
+        
+        return jsonify({"success": True})
+
+    except Exception as e:
+        print("ERROR:", e)
+        return jsonify({"success": False}), 500
+@app.route("/api/get_live_location")
+def get_live_location():
+    try:
+        bus_id = request.args.get("bus_id")
+        bus_name = f"Bus{bus_id}"
+
+        rows = fetch_where("bus_details", "bus_number", bus_name)
+
+        if not rows:
+            return jsonify({"success": False}), 404
+
+        return jsonify({
+            "success": True,
+            "buses": rows
+        })
+
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
+# ================= RUN =================
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    app.run(debug=True)

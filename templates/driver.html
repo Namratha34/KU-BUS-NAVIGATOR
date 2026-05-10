@@ -6,39 +6,65 @@
 <body>
   <h2>Driver Location Sharing</h2>
   <p id="status">Starting GPS...</p>
+<script>
+const params = new URLSearchParams(window.location.search);
+const BUS_ID = params.get("bus") || 1;
 
-  <script>
-    const BUS_ID = 6; // change if needed
+let lastSentTime = 0;
 
-    if ("geolocation" in navigator) {
-      navigator.geolocation.watchPosition(
-        position => {
-          const lat = position.coords.latitude;
-          const lng = position.coords.longitude;
+if ("geolocation" in navigator) {
 
-          document.getElementById("status").innerText =
-            `Lat: ${lat}, Lng: ${lng}`;
+  console.log("Driver script loaded");
 
-          fetch("/api/update-location", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              bus_id: BUS_ID,
-              lat: lat,
-              lng: lng
-            })
-          });
-        },
-        error => {
-          document.getElementById("status").innerText =
-            "GPS permission denied";
-        },
-        { enableHighAccuracy: true }
-      );
-    } else {
+  navigator.geolocation.watchPosition(
+
+    // ✅ SUCCESS CALLBACK
+    (position) => {
+      const lat = position.coords.latitude;
+      const lng = position.coords.longitude;
+
+      console.log("GPS:", lat, lng);
+
       document.getElementById("status").innerText =
-        "Geolocation not supported";
+        `Lat: ${lat}, Lng: ${lng}`;
+
+      const now = Date.now();
+      if (now - lastSentTime < 5000) return;
+      lastSentTime = now;
+
+      fetch("/api/update-location", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          bus_id: BUS_ID,
+          lat: lat,
+          lng: lng
+        })
+      })
+      .then(res => res.json())
+      .then(data => console.log("UPDATE RESPONSE:", data))
+      .catch(err => console.error("Update failed:", err));
+    },
+
+    // ✅ ERROR CALLBACK
+    (error) => {
+      console.error("GPS ERROR:", error);
+      document.getElementById("status").innerText =
+        "GPS permission denied";
+    },
+
+    // ✅ OPTIONS
+    {
+      enableHighAccuracy: true,
+      maximumAge: 5000,
+      timeout: 10000
     }
-  </script>
+  );
+
+} else {
+  document.getElementById("status").innerText =
+    "Geolocation not supported";
+}
+</script>
 </body>
 </html>

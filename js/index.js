@@ -4,9 +4,9 @@ const loginBtn = document.getElementById("loginBtn");
 const registerModal = document.getElementById("registerModal");
 const loginModal = document.getElementById("loginModal");
 const getStartedBtn = document.getElementById("getStartedBtn");
-const switchToLogin = document.getElementById("switchToLogin"); // Ensure this ID exists in HTML
+const switchToLogin = document.getElementById("switchToLogin");
 
-// ================= OPEN / CLOSE MODAL =================
+// ================= MODAL CONTROLS =================
 registerBtn?.addEventListener("click", () => openModal("registerModal"));
 loginBtn?.addEventListener("click", () => openModal("loginModal"));
 getStartedBtn?.addEventListener("click", () => openModal("registerModal"));
@@ -22,13 +22,10 @@ function openModal(modalId) {
     if (modal) modal.style.display = "block";
 }
 
-function closeModal(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) modal.style.display = "none";
-}
-
 function closeAllModals() {
-    document.querySelectorAll(".modal").forEach(m => m.style.display = "none");
+    document.querySelectorAll(".modal").forEach(m => {
+        m.style.display = "none";
+    });
 }
 
 window.addEventListener("click", (e) => {
@@ -39,9 +36,10 @@ window.addEventListener("keydown", (e) => {
     if (e.key === "Escape") closeAllModals();
 });
 
-// ================= REMEMBER ME (INITIAL LOAD) =================
+// ================= REMEMBER ME LOAD =================
 const savedEmail = localStorage.getItem("rememberMe");
 const loginEmailInput = document.getElementById("loginEmail");
+
 if (savedEmail && loginEmailInput) {
     loginEmailInput.value = savedEmail;
 }
@@ -52,13 +50,12 @@ const registerForm = document.getElementById("registerForm");
 registerForm?.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const username = document.getElementById("regUsername").value.trim();
-    const email = document.getElementById("regEmail").value.trim();
-    const password = document.getElementById("regPassword").value.trim();
-    const remember = document.getElementById("regRemember")?.checked;
+    const username = document.getElementById("regUsername")?.value.trim() || "";
+    const email = document.getElementById("regEmail")?.value.trim() || "";
+    const password = document.getElementById("regPassword")?.value.trim() || "";
     const regMsg = document.getElementById("regMsg");
 
-    regMsg.innerText = "Processing...";
+    regMsg.innerText = "Creating account...";
     regMsg.style.color = "#555";
 
     try {
@@ -72,12 +69,12 @@ registerForm?.addEventListener("submit", async (e) => {
 
         if (data.success) {
             regMsg.style.color = "green";
-            regMsg.innerText = "Registration Successful ✔";
-            if (remember) localStorage.setItem("rememberMe", email);
-            setTimeout(() => {
-                closeModal('registerModal');
-                openModal('loginModal');
-            }, 1200);
+            regMsg.innerText = "Account created successfully!";
+
+            alert("Registration successful");
+
+            closeAllModals();
+            openModal("loginModal");
         } else {
             regMsg.style.color = "red";
             regMsg.innerText = data.message || "Registration failed";
@@ -85,26 +82,26 @@ registerForm?.addEventListener("submit", async (e) => {
     } catch (err) {
         console.error("Register error:", err);
         regMsg.style.color = "red";
-        regMsg.innerText = "Server error! Please try again.";
+        regMsg.innerText = "Server error. Try again later.";
     }
 });
 
-// ================= LOGIN (FIXED) =================
+// ================= LOGIN =================
 const loginForm = document.getElementById("loginForm");
+
 loginForm?.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    // FIXED: Correctly getting elements before using them
     const emailInput = document.getElementById("loginEmail");
     const passwordInput = document.getElementById("loginPassword");
     const rememberInput = document.getElementById("loginRemember");
     const loginMsg = document.getElementById("loginMsg");
 
-    const email = emailInput.value.trim();
-    const password = passwordInput.value.trim();
-    const remember = rememberInput ? rememberInput.checked : false;
+    const email = emailInput?.value.trim() || "";
+    const password = passwordInput?.value.trim() || "";
+    const remember = rememberInput?.checked || false;
 
-    loginMsg.innerText = "Checking...";
+    loginMsg.innerText = "Checking credentials...";
     loginMsg.style.color = "#555";
 
     try {
@@ -117,25 +114,28 @@ loginForm?.addEventListener("submit", async (e) => {
         const data = await res.json();
 
         if (data.success) {
-            if (remember) localStorage.setItem("rememberMe", email);
-            loginMsg.style.color = "green";
-            loginMsg.innerText = "Login successful ✔";
-            setTimeout(() => {
-                window.location.href = "/dashboard";
-            }, 800);
+            if (remember) {
+                localStorage.setItem("rememberMe", email);
+            } else {
+                localStorage.removeItem("rememberMe");
+            }
+
+            localStorage.setItem("username", data.username || "");
+
+            window.location.href = "/dashboard";
         } else {
-            loginMsg.style.color = "red";
             loginMsg.innerText = data.message || "Invalid credentials";
+            loginMsg.style.color = "red";
         }
     } catch (err) {
-        console.error("Login Error:", err);
+        console.error("Login error:", err);
+        loginMsg.innerText = "Server error. Try again later.";
         loginMsg.style.color = "red";
-        loginMsg.innerText = "Server error!";
     }
 });
 
 // ================= FORGOT PASSWORD =================
-function forgotPassword() {
+window.forgotPassword = function () {
     const email = prompt("Enter your registered email:");
     if (!email) return;
 
@@ -144,22 +144,27 @@ function forgotPassword() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email })
     })
-    .then(res => res.json())
-    .then(data => alert(data.message))
-    .catch(() => alert("Server error"));
-}
+        .then(res => res.json())
+        .then(data => alert(data.message || "Check your email"))
+        .catch(err => {
+            console.error(err);
+            alert("Server error");
+        });
+};
 
 // ================= CONTACT FORM =================
 const contactForm = document.getElementById("contact-form");
-contactForm?.addEventListener("submit", function(e) {
+
+contactForm?.addEventListener("submit", function (e) {
     e.preventDefault();
-    // Assuming emailjs is loaded in the HTML head
+
     emailjs.sendForm("service_xwbwy2i", "template_bhfphlv", this)
-    .then(() => {
-        alert("Message sent successfully ✅");
-        contactForm.reset();
-    }).catch((error) => {
-        console.error("EmailJS Error:", error);
-        alert("Failed to send message ❌");
-    });
+        .then(() => {
+            alert("Message sent successfully ✅");
+            contactForm.reset();
+        })
+        .catch((error) => {
+            console.error("EmailJS Error:", error);
+            alert("Failed to send message ❌");
+        });
 });

@@ -17,8 +17,9 @@ document.addEventListener("DOMContentLoaded", () => {
     // === 3️⃣ Elements ===
     const busGrid = document.getElementById("busGrid");
     const busDetails = document.getElementById("busDetails");
+    const liveLink = document.querySelector(".live-location-link");
 
-    if (!busGrid || !busDetails) {
+    if (!busGrid || !busDetails || !liveLink) {
         console.error("Dashboard elements not found");
         return;
     }
@@ -33,84 +34,49 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // === 5️⃣ Show Bus Details ===
-    // === 5️⃣ Show Bus Details (FIXED) ===
-function showBus(num) {
-    fetch(`/api/bus/${num}`)
-        .then(res => {
-            if (!res.ok) throw new Error("Bus not found");
-            return res.json();
-        })
-        .then(response => {
-            // Flask returns { success: true, data: { ... } }
-            // So we need to access response.data
-            const data = response.data;
+    function showBus(num) {
+        fetch(`/api/bus/${num}`)
+            .then(res => res.json())
+            .then(response => {
 
-            // Updated to match your TiDB column names exactly
-            document.getElementById("dBus").innerText = data.bus_number || "N/A";
-            document.getElementById("dDriver").innerText = data.driver || "N/A"; // Fixed
-            document.getElementById("dPhone").innerText = data.phone || "N/A";   // Fixed
-            document.getElementById("dRoute").innerText = data.route || "N/A";
-            document.getElementById("dTime").innerText = data.start_time || "N/A";
-            document.getElementById("dDest").innerText = data.destination || "N/A"; // Fixed
+                if (!response.success) {
+                    alert("Bus not found");
+                    return;
+                }
 
-            const liveLink = document.querySelector(".live-location-link");
-            if (data.live_location) {
-                const [lat, lng] = data.live_location.split(",");
-                liveLink.dataset.lat = lat;
-                liveLink.dataset.lng = lng;
-            } else {
-                liveLink.dataset.lat = "";
-                liveLink.dataset.lng = "";
-            }
+                const data = response.data;
 
-            busDetails.style.display = "block"; 
-        })
-        .catch(err => {
-            alert("Bus data not found in database");
-            console.error(err);
-        });
-}
+                document.getElementById("dDriver").innerText = data.driver;
+                document.getElementById("dPhone").innerText = data.phone;
+                document.getElementById("dRoute").innerText = data.route;
+                document.getElementById("dTime").innerText = data.start_time;
+                document.getElementById("dDest").innerText = data.destination;
 
-    // === 6️⃣ Handle Live Location Click ===
+                // ✅ Store bus ID for live tracking
+                liveLink.dataset.bus = num;
+
+                busDetails.style.display = "block";
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Bus data not found in database");
+            });
+    }
+
+    // === 6️⃣ Handle Live Location Click (FIXED) ===
     document.addEventListener("click", function(e) {
         if (e.target && e.target.classList.contains("live-location-link")) {
             e.preventDefault();
 
-            const lat = parseFloat(e.target.dataset.lat);
-            const lng = parseFloat(e.target.dataset.lng);
+            const busId = e.target.dataset.bus;
 
-            if (isNaN(lat) || isNaN(lng)) {
-                alert("Live location not available for this bus");
+            if (!busId) {
+                alert("Please select a bus first");
                 return;
             }
 
-            const mapWindow = window.open("", "Live Location", "width=600,height=500");
-
-            mapWindow.document.write(`
-                <html>
-                <head>
-                    <title>Bus Live Location</title>
-                    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-                    <style>
-                        html, body { margin:0; height:100%; }
-                        #map { height:100%; width:100%; }
-                    </style>
-                </head>
-                <body>
-                    <div id="map"></div>
-                    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-                    <script>
-                        var map = L.map('map').setView([${lat}, ${lng}], 16);
-                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                            attribution: '&copy; OpenStreetMap contributors'
-                        }).addTo(map);
-                        L.marker([${lat}, ${lng}]).addTo(map)
-                            .bindPopup('🚌 Bus is here')
-                            .openPopup();
-                    <\/script>
-                </body>
-                </html>
-            `);
+            // 🚀 Redirect to live map page
+            window.location.href = `/live_map?bus=${busId}`;
         }
     });
 
