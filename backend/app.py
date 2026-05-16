@@ -202,4 +202,5 @@ def get_live_location():
         return jsonify({"success": False, "message": str(e)}), 500
 # ================= RUN =================
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()
+    app = app
