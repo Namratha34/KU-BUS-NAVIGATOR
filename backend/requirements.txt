@@ -1,9 +1,0 @@
-flask
-flask-cors
-mysql-connector-python
-gunicorn
-Flask
-flask-cors
-python-dotenv
-requests
-supabase
