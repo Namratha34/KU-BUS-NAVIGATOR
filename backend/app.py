@@ -203,4 +203,3 @@ def get_live_location():
 # ================= RUN =================
 if __name__ == "__main__":
     app.run()
-    app = app
